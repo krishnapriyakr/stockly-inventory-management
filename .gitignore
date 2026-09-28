@@ -53,3 +53,7 @@ yarn-error.log*
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+.agents/
+.claude/
+.windsurf/
