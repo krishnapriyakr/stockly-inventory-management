@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth/server";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
@@ -10,11 +10,13 @@ const categorySchema = z.object({
 });
 
 async function getUserId() {
-  const result = await auth.getSession();
-  console.log("AUTH RESULT:", JSON.stringify(result, null, 2));
-  if (!result?.data?.user?.id) throw new Error("Unauthorized");
-  return result.data.user.id;
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  return session.user.id;
 }
+
 
 export async function createCategory(formData: FormData) {
   const userId = await getUserId();
@@ -29,7 +31,12 @@ export async function createCategory(formData: FormData) {
       data: { name: parsed.data.name, userId },
     });
   } catch (e: unknown) {
-    if (typeof e === "object" && e !== null && "code" in e && (e as { code: string }).code === "P2002") {
+    if (
+      typeof e === "object" &&
+      e !== null &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
       return { error: "You already have a category with this name." };
     }
     return { error: "Something went wrong." };

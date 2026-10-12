@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Plus, Tags, Trash2 } from "lucide-react";
 import { categoriesApi } from "@/lib/api/categories";
+export const dynamic = 'force-dynamic';
 
 export default async function CategoriesPage() {
-//   const categories = await categoriesApi.list();
+  const categories = await categoriesApi.list();
 
   return (
     <div className="p-6 sm:p-8">
@@ -26,7 +27,7 @@ export default async function CategoriesPage() {
         </Link>
       </div>
 
-      {/* {categories.length === 0 ? (
+      {categories.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center">
           <Tags size={32} className="text-slate-300" />
           <p className="mt-3 text-sm font-medium text-slate-500">
@@ -46,7 +47,7 @@ export default async function CategoriesPage() {
                     <Tags size={16} className="text-indigo-600" />
                   </div>
                   <span className="text-sm font-semibold text-slate-700">
-                    {cat.name}
+                    {cat?.name}
                   </span>
                 </div>
 
@@ -76,7 +77,7 @@ export default async function CategoriesPage() {
             ))}
           </ul>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
