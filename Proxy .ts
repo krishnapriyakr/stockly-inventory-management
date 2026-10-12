@@ -4,17 +4,10 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { pathname } = req.nextUrl;
 
-  const isProtected =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/categories") ||
-    pathname.startsWith("/products") ||
-    pathname.startsWith("/suppliers") ||
-    pathname.startsWith("/stock") ||
-    pathname.startsWith("/alerts") ||
-    pathname.startsWith("/reports") ||
-    pathname.startsWith("/settings");
+  const publicRoutes = ["/", "/sign-in", "/sign-up"];
+  const isPublic = publicRoutes.some((p) => pathname === p);
 
-  if (isProtected && !isLoggedIn) {
+  if (!isPublic && !isLoggedIn) {
     return Response.redirect(new URL("/sign-in", req.nextUrl));
   }
 });
