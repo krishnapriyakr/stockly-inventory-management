@@ -51,7 +51,7 @@ export default function SignUpPage() {
               name="name"
               required
               placeholder="John Doe"
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-black outline-none focus:border-indigo-500 focus:bg-white"
             />
           </div>
 
@@ -62,7 +62,7 @@ export default function SignUpPage() {
               type="email"
               required
               placeholder="m@example.com"
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-black outline-none focus:border-indigo-500 focus:bg-white"
             />
           </div>
 
@@ -73,7 +73,7 @@ export default function SignUpPage() {
               type="password"
               required
               placeholder="At least 8 characters"
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-black outline-none focus:border-indigo-500 focus:bg-white"
             />
           </div>
 

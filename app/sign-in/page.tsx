@@ -54,7 +54,7 @@ export default function SignInPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="m@example.com"
               required
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-black outline-none focus:border-indigo-500 focus:bg-white"
             />
           </div>
 
@@ -73,7 +73,7 @@ export default function SignInPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               required
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm outline-none focus:border-indigo-500 focus:bg-white"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-black outline-none focus:border-indigo-500 focus:bg-white"
             />
           </div>
 
