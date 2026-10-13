@@ -17,6 +17,8 @@ model User {
   accounts   Account[]
   sessions   Session[]
   categories Category[]
+  suppliers  Supplier[]
+
 }
 
 model Account {
@@ -62,6 +64,25 @@ model Category {
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Supplier {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  address       String
+  contactPerson String?
+  leadTimeDays  Int      @default(7)
+  isActive      Boolean  @default(true)
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
