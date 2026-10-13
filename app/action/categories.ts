@@ -7,28 +7,32 @@ import { z } from "zod";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required").max(50),
+  description: z.string().max(200).optional().or(z.literal("")),
 });
 
 async function getUserId() {
   const session = await auth();
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
+  if (!session?.user?.id) throw new Error("Unauthorized");
   return session.user.id;
 }
 
-
 export async function createCategory(formData: FormData) {
   const userId = await getUserId();
-  const parsed = categorySchema.safeParse({ name: formData.get("name") });
 
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0].message };
-  }
+  const parsed = categorySchema.safeParse({
+    name: formData.get("name"),
+    description: formData.get("description") ?? "",
+  });
+
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   try {
     await db.category.create({
-      data: { name: parsed.data.name, userId },
+      data: {
+        name: parsed.data.name,
+        description: parsed.data.description || null,
+        userId,
+      },
     });
   } catch (e: unknown) {
     if (
@@ -54,21 +58,47 @@ export async function getCategories() {
   });
 }
 
+export async function getCategoryById(id: string) {
+  const userId = await getUserId();
+  return db.category.findFirst({ where: { id, userId } });
+}
+
 export async function updateCategory(id: string, formData: FormData) {
   const userId = await getUserId();
-  const parsed = categorySchema.safeParse({ name: formData.get("name") });
 
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0].message };
-  }
+  const parsed = categorySchema.safeParse({
+    name: formData.get("name"),
+    description: formData.get("description") ?? "",
+  });
+
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   try {
     await db.category.update({
       where: { id, userId },
-      data: { name: parsed.data.name },
+      data: {
+        name: parsed.data.name,
+        description: parsed.data.description || null,
+      },
     });
   } catch {
     return { error: "Could not update category." };
+  }
+
+  revalidatePath("/categories");
+  return { success: true };
+}
+
+export async function toggleCategoryActive(id: string, isActive: boolean) {
+  const userId = await getUserId();
+
+  try {
+    await db.category.update({
+      where: { id, userId },
+      data: { isActive },
+    });
+  } catch {
+    return { error: "Could not update status." };
   }
 
   revalidatePath("/categories");
@@ -79,9 +109,7 @@ export async function deleteCategory(id: string) {
   const userId = await getUserId();
 
   try {
-    await db.category.delete({
-      where: { id, userId },
-    });
+    await db.category.delete({ where: { id, userId } });
   } catch {
     return { error: "Could not delete category." };
   }
