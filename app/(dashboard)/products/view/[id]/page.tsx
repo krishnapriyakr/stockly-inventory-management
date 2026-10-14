@@ -44,7 +44,7 @@ export default async function ProductViewPage({
               {product.name}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              SKU: {product.sku}
+              SKU: {product?.sku}
               {product.brand ? ` · ${product.brand}` : ""}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">

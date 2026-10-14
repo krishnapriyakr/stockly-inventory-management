@@ -6,7 +6,7 @@ import { ProductRowActions } from "./product-actions";
 
 export const dynamic = "force-dynamic";
 
-type SearchParams = { q?: string; status?: string };
+type SearchParams = { name?: string; sku?: string; status?: string };
 
 function stockTone(stock: number, reorderLevel: number) {
   if (stock === 0) return "bg-rose-50 text-rose-700";
@@ -20,7 +20,8 @@ export default async function ProductsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const params = await searchParams;
-  const q = (params.q ?? "").trim();
+  const nameQ = (params.name ?? "").trim();
+  const skuQ = (params.sku ?? "").trim();
   const status = params.status ?? "all";
 
   const allProducts = await productsApi.list();
@@ -32,17 +33,21 @@ export default async function ProductsPage({
   const outOfStockCount = allProducts.filter((p) => p.stock === 0).length;
 
   const filtered = allProducts.filter((p) => {
-    const query = q.toLowerCase();
-    const matchesSearch = q
-      ? p.name.toLowerCase().includes(query) ||
-        p.sku.toLowerCase().includes(query)
-      : true;
-    const matchesStatus =
-      status === "all" ||
-      (status === "active" && p.isActive) ||
-      (status === "inactive" && !p.isActive);
-    return matchesSearch && matchesStatus;
-  });
+  const matchesName = nameQ
+    ? p.name.toLowerCase().includes(nameQ.toLowerCase())
+    : true;
+
+  const matchesSku = skuQ
+    ? p.sku.toLowerCase().includes(skuQ.toLowerCase())
+    : true;
+
+  const matchesStatus =
+    status === "all" ||
+    (status === "active" && p.isActive) ||
+    (status === "inactive" && !p.isActive);
+
+  return matchesName && matchesSku && matchesStatus;
+});
 
   return (
     <div className="p-6 sm:p-8">
@@ -103,30 +108,25 @@ export default async function ProductsPage({
 
       {/* List */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <ProductsSearch q={q} status={status} />
-
+       <ProductsSearch name={nameQ} sku={skuQ} status={status} />
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center px-5 py-16 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
               <Package size={24} />
             </div>
             <h3 className="mt-4 text-base font-semibold text-slate-900">
-              {q || status !== "all" ? "No matching products" : "No products yet"}
-            </h3>
+            {nameQ || skuQ || status !== "all" ? "No matching products" : "No products yet"}            </h3>
             <p className="mt-2 max-w-sm text-sm text-slate-500">
-              {q || status !== "all"
-                ? "Try a different search or filter."
-                : "Add your first product to start tracking stock."}
+              {nameQ || skuQ || status !== "all"
+                 ? "Try a different search or filter."
+                 : "Add your first product to start tracking stock."}
             </p>
-            {!q && status === "all" && (
-              <Link
-                href="/products/add"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
-              >
-                <Plus size={16} />
-                Add product
-              </Link>
-            )}
+            {!nameQ && !skuQ && status === "all" && (
+                <Link href="/products/add" >
+                    <Plus size={16} />
+                    Add product
+                </Link>
+                )}
           </div>
         ) : (
           <div className="overflow-x-auto">
