@@ -47,9 +47,7 @@ export default function AddSupplierPage() {
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-5 sm:px-7">
             <h2 className="font-semibold text-slate-900">Supplier details</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Fields marked with <span className="text-rose-500">*</span> are required.
-            </p>
+            
           </div>
 
           <form

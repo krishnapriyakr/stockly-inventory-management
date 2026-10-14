@@ -1,0 +1,387 @@
+"use client";
+
+import { useEffect, useState, useTransition } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft, Check, Info, Package } from "lucide-react";
+import { productsApi } from "@/lib/api/products";
+import { dropdownsApi } from "@/lib/api/dropdowns";
+
+type CategoryOption = { id: string; name: string };
+type SupplierOption = { id: string; name: string };
+
+export default function EditProductPage() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
+  const [barcode, setBarcode] = useState("");
+  const [brand, setBrand] = useState("");
+  const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [supplierId, setSupplierId] = useState("");
+  const [unit, setUnit] = useState("pcs");
+  const [costPrice, setCostPrice] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [taxRate, setTaxRate] = useState(0);
+  const [stock, setStock] = useState(0);
+  const [reorderLevel, setReorderLevel] = useState(10);
+
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    async function load() {
+      const [product, cats, sups] = await Promise.all([
+        productsApi.getById(id),
+        dropdownsApi.categories(),
+        dropdownsApi.suppliers(),
+      ]);
+
+      if (product) {
+        setName(product.name);
+        setSku(product.sku);
+        setBarcode(product.barcode ?? "");
+        setBrand(product.brand ?? "");
+        setDescription(product.description ?? "");
+        setCategoryId(product.categoryId);
+        setSupplierId(product.supplierId);
+        setUnit(product.unit);
+        setCostPrice(Number(product.costPrice));
+        setSellingPrice(Number(product.sellingPrice));
+        setTaxRate(Number(product.taxRate));
+        setStock(product.stock);
+        setReorderLevel(product.reorderLevel);
+      }
+
+      setCategories(cats);
+      setSuppliers(sups);
+      setLoaded(true);
+    }
+    load();
+  }, [id]);
+
+  if (!loaded) {
+    return <div className="p-6 sm:p-8 text-sm text-slate-400">Loading…</div>;
+  }
+
+  return (
+    <div className="mx-auto max-w-6xl space-y-7 p-6 sm:p-8">
+      <Link
+        href="/products"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-indigo-600"
+      >
+        <ArrowLeft size={16} />
+        Back to products
+      </Link>
+
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
+          <Package size={24} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+            Edit product
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            Update the details for this product.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-5 py-5 sm:px-7">
+            <h2 className="font-semibold text-slate-900">Product details</h2>
+          </div>
+
+          <form
+            action={(formData) => {
+              startTransition(async () => {
+                const result = await productsApi.update(id, formData);
+                if (result?.error) setError(result.error);
+                else router.push("/products");
+              });
+            }}
+            className="space-y-6 p-5 sm:p-7"
+          >
+            <div className="grid grid-cols-1 gap-4 text-black sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Name <span className="ml-1 text-rose-500">*</span>
+                </label>
+                <input
+                  name="name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setError(null);
+                  }}
+                  required
+                  autoFocus
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  SKU <span className="ml-1 text-rose-500">*</span>
+                </label>
+                <input
+                  name="sku"
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value)}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Barcode
+                </label>
+                <input
+                  name="barcode"
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Brand
+                </label>
+                <input
+                  name="brand"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Category <span className="ml-1 text-rose-500">*</span>
+                </label>
+                <select
+                  name="categoryId"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                >
+                  <option value="">Select category…</option>
+                  {categories?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Supplier <span className="ml-1 text-rose-500">*</span>
+                </label>
+                <select
+                  name="supplierId"
+                  value={supplierId}
+                  onChange={(e) => setSupplierId(e.target.value)}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                >
+                  <option value="">Select supplier…</option>
+                  {suppliers?.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Unit
+                </label>
+                <input
+                  name="unit"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Cost price (₹)
+                </label>
+                <input
+                  name="costPrice"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={costPrice}
+                  onChange={(e) => setCostPrice(Number(e.target.value))}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Selling price (₹)
+                </label>
+                <input
+                  name="sellingPrice"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={sellingPrice}
+                  onChange={(e) => setSellingPrice(Number(e.target.value))}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Tax rate (%)
+                </label>
+                <input
+                  name="taxRate"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="0.01"
+                  value={taxRate}
+                  onChange={(e) => setTaxRate(Number(e.target.value))}
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Stock
+                </label>
+                <input
+                  name="stock"
+                  type="number"
+                  min={0}
+                  value={stock}
+                  onChange={(e) => setStock(Number(e.target.value))}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+                <p className="mt-2 text-xs text-slate-400">
+                  Note: Stock Movements will eventually handle this.
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Reorder level
+                </label>
+                <input
+                  name="reorderLevel"
+                  type="number"
+                  min={0}
+                  value={reorderLevel}
+                  onChange={(e) => setReorderLevel(Number(e.target.value))}
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div
+                role="alert"
+                className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+              >
+                {error}
+              </div>
+            )}
+
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+              <Link
+                href="/products"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </Link>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-50"
+              >
+                <Check size={17} />
+                {isPending ? "Saving…" : "Save changes"}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <aside className="space-y-5">
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 px-5 py-4">
+              <h3 className="text-sm font-semibold text-slate-900">
+                Live preview
+              </h3>
+            </div>
+            <div className="p-5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                <Package size={23} />
+              </div>
+              <h4 className="mt-4 break-words text-lg font-semibold text-slate-900">
+                {name.trim() || "Product name"}
+              </h4>
+              <p className="mt-1 text-xs text-slate-500">
+                SKU: {sku.trim() || "—"}
+              </p>
+              <p className="mt-3 text-sm font-semibold text-slate-800">
+                ₹{sellingPrice.toFixed(2)}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                {stock} in stock
+              </p>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+              <Info size={18} />
+            </div>
+            <h3 className="mt-4 text-sm font-semibold text-slate-900">
+              Stock will move to Stock Movements
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              For now, you can edit stock directly. Once Stock Movements is
+              built, all changes will be logged there for history.
+            </p>
+          </section>
+        </aside>
+      </div>
+    </div>
+  );
+}
