@@ -111,7 +111,7 @@ export default function EditProductPage() {
             className="space-y-6 p-5 sm:p-7"
           >
             <div className="grid grid-cols-1 gap-4 text-black sm:grid-cols-2">
-              <div className="sm:col-span-2">
+              <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Name <span className="ml-1 text-rose-500">*</span>
                 </label>
@@ -153,7 +153,7 @@ export default function EditProductPage() {
                 />
               </div>
 
-              <div className="sm:col-span-2">
+              <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Brand
                 </label>
@@ -268,24 +268,6 @@ export default function EditProductPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Stock
-                </label>
-                <input
-                  name="stock"
-                  type="number"
-                  min={0}
-                  value={stock}
-                  onChange={(e) => setStock(Number(e.target.value))}
-                  required
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
-                <p className="mt-2 text-xs text-slate-400">
-                  Note: Stock Movements will eventually handle this.
-                </p>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Reorder level
                 </label>
                 <input
@@ -372,12 +354,12 @@ export default function EditProductPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
               <Info size={18} />
             </div>
-            <h3 className="mt-4 text-sm font-semibold text-slate-900">
-              Stock will move to Stock Movements
+             <h3 className="mt-4 text-sm font-semibold text-slate-900">
+              Stock is managed by movements
             </h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              For now, you can edit stock directly. Once Stock Movements is
-              built, all changes will be logged there for history.
+              Stock can only be changed by recording a Stock Movement — every
+              change is logged for a complete audit trail.
             </p>
           </section>
         </aside>

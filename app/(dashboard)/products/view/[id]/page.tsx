@@ -5,6 +5,7 @@ import {
   ArrowLeft, Boxes, Building2, Clock, Hash, Package, Pencil, Percent, Tag,
 } from "lucide-react";
 import { productsApi } from "@/lib/api/products";
+import { stockMovementsApi } from "@/lib/api/stock-movements";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function ProductViewPage({
 
   if (!product) notFound();
 
+const movements = await stockMovementsApi.forProduct(id);
   return (
     <div className="mx-auto max-w-4xl space-y-7 p-6 sm:p-8">
       <Link
@@ -89,12 +91,43 @@ export default async function ProductViewPage({
         </section>
       )}
 
-      <section className="rounded-2xl border border-dashed border-slate-200 bg-white/50 p-8 text-center">
-        <p className="text-sm font-semibold text-slate-700">Stock movements</p>
-        <p className="mt-1 text-xs text-slate-400">
-          Coming when the Stock Movements module is built.
-        </p>
-      </section>
+      {/* Movement timeline */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-bold text-slate-900">Movement timeline</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Every change to this product's stock.
+          </p>
+        </div>
+
+          {movements.length === 0 ? (
+            <div className="p-6 text-center text-xs text-slate-400">
+              No movements recorded yet.
+            </div>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {movements.map((m) => (
+                <li key={m.id} className="flex items-center justify-between gap-3 px-5 py-3 sm:px-6">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-700">
+                      {m.type === "OUT" ? "-" : "+"}
+                      {m.quantity} · {m.reason.replaceAll("_", " ").toLowerCase()}
+                    </p>
+                    {m.note && (
+                      <p className="mt-0.5 text-[11px] text-slate-400">{m.note}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 text-[11px] text-slate-400">
+                    {new Date(m.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
     </div>
   );
 }

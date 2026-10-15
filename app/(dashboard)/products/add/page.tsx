@@ -12,7 +12,6 @@ export default function AddProductPage() {
   const [sku, setSku] = useState("");
   const [brand, setBrand] = useState("");
   const [sellingPrice, setSellingPrice] = useState(0);
-  const [stock, setStock] = useState(0);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -73,7 +72,7 @@ export default function AddProductPage() {
             className="space-y-6 p-5 sm:p-7 "
           >
             <div className="grid grid-cols-1 gap-4 text-black sm:grid-cols-2">
-              <div className="sm:col-span-2">
+              <div >
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Name <span className="ml-1 text-rose-500">*</span>
                 </label>
@@ -121,7 +120,7 @@ export default function AddProductPage() {
                 />
               </div>
 
-              <div className="sm:col-span-2">
+              <div >
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Brand
                   <span className="ml-2 font-normal text-slate-400">(optional)</span>
@@ -234,21 +233,6 @@ export default function AddProductPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Opening stock <span className="ml-1 text-rose-500">*</span>
-                </label>
-                <input
-                  name="stock"
-                  type="number"
-                  min={0}
-                  value={stock}
-                  onChange={(e) => setStock(Number(e.target.value))}
-                  required
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Reorder level <span className="ml-1 text-rose-500">*</span>
                 </label>
                 <input
@@ -326,7 +310,7 @@ export default function AddProductPage() {
                 ₹{sellingPrice.toFixed(2)}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                {stock} in stock
+                Stock is set via Stock Movements
               </p>
             </div>
           </section>

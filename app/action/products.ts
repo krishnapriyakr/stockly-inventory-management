@@ -17,7 +17,7 @@ const productSchema = z.object({
   costPrice: z.coerce.number().min(0, "Cost price cannot be negative"),
   sellingPrice: z.coerce.number().min(0, "Selling price cannot be negative"),
   taxRate: z.coerce.number().min(0).max(100),
-  stock: z.coerce.number().int().min(0),
+  // NOTE: no `stock` field here. Stock changes only through Stock Movements.
   reorderLevel: z.coerce.number().int().min(0),
 });
 
@@ -40,7 +40,6 @@ function parseForm(formData: FormData) {
     costPrice: formData.get("costPrice") ?? "0",
     sellingPrice: formData.get("sellingPrice") ?? "0",
     taxRate: formData.get("taxRate") ?? "0",
-    stock: formData.get("stock") ?? "0",
     reorderLevel: formData.get("reorderLevel") ?? "10",
   };
 }
@@ -58,8 +57,9 @@ function normalize(data: z.infer<typeof productSchema>) {
     costPrice: data.costPrice,
     sellingPrice: data.sellingPrice,
     taxRate: data.taxRate,
-    stock: data.stock,
     reorderLevel: data.reorderLevel,
+    // stock is intentionally absent — Prisma default 0 on create,
+    // and update never touches it.
   };
 }
 
@@ -72,7 +72,6 @@ export async function createProduct(formData: FormData) {
   }
 
   try {
-    // Verify the category and supplier belong to this user
     const [category, supplier] = await Promise.all([
       db.category.findFirst({
         where: { id: parsed.data.categoryId, userId },
@@ -87,6 +86,7 @@ export async function createProduct(formData: FormData) {
 
     await db.product.create({
       data: { ...normalize(parsed.data), userId },
+      // stock defaults to 0 — every unit arrives via a Stock Movement
     });
   } catch (e: unknown) {
     if (
@@ -167,6 +167,7 @@ export async function updateProduct(id: string, formData: FormData) {
     await db.product.update({
       where: { id, userId },
       data: normalize(parsed.data),
+      // stock is never modified here
     });
   } catch (e: unknown) {
     if (
@@ -181,6 +182,7 @@ export async function updateProduct(id: string, formData: FormData) {
   }
 
   revalidatePath("/products");
+  revalidatePath(`/products/view/${id}`);
   return { success: true };
 }
 
@@ -212,4 +214,3 @@ export async function deleteProduct(id: string) {
   revalidatePath("/products");
   return { success: true };
 }
-

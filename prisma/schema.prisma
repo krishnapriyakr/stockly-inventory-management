@@ -19,6 +19,7 @@ model User {
   categories Category[]
   suppliers  Supplier[]
   products   Product[]
+  movements  StockMovement[]
 
 }
 
@@ -117,9 +118,46 @@ model Product {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  movements  StockMovement[]
 
   @@unique([userId, sku])
   @@index([userId])
   @@index([categoryId])
   @@index([supplierId])
+}
+
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+}
+
+enum MovementReason {
+  PURCHASE
+  RETURN_FROM_CUSTOMER
+  FOUND
+  SALE
+  DAMAGE
+  LOSS
+  TRANSFER_OUT
+  AUDIT_CORRECTION
+}
+
+model StockMovement {
+  id        String         @id @default(cuid())
+  productId String
+  type      MovementType
+  reason    MovementReason
+  quantity  Int
+  note      String?
+  userId    String
+  createdAt DateTime       @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+  @@index([createdAt])
 }
