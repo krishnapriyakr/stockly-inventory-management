@@ -136,6 +136,9 @@ export async function getMovementsForProduct(productId: string) {
   const userId = await getUserId();
   return db.stockMovement.findMany({
     where: { productId, userId },
+    include: {
+      customer: { select: { id: true, name: true } },  
+    },
     orderBy: { createdAt: "desc" },
     take: 50,
   });

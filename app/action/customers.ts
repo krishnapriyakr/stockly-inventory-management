@@ -7,8 +7,8 @@ import { z } from "zod";
 
 const customerSchema = z.object({
   name: z.string().min(1, "Name is required").max(80),
-  email: z.string().max(120).optional().or(z.literal("")),
-  phone: z.string().max(30).optional().or(z.literal("")),
+  email: z.string().min(1, "Email is required").email("Enter a valid email").max(120),
+  phone: z.string().min(5, "Phone is required").max(30),
   address: z.string().max(200).optional().or(z.literal("")),
 });
 
@@ -21,8 +21,8 @@ async function getUserId() {
 function parseForm(formData: FormData) {
   return {
     name: formData.get("name"),
-    email: formData.get("email") ?? "",
-    phone: formData.get("phone") ?? "",
+    email: formData.get("email"),
+    phone: formData.get("phone"),
     address: formData.get("address") ?? "",
   };
 }
@@ -30,8 +30,8 @@ function parseForm(formData: FormData) {
 function normalize(data: z.infer<typeof customerSchema>) {
   return {
     name: data.name,
-    email: data.email || null,
-    phone: data.phone || null,
+    email: data.email,
+    phone: data.phone,
     address: data.address || null,
   };
 }

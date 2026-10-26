@@ -7,8 +7,8 @@ import { stockMovementsApi } from "@/lib/api/stock-movements";
 import { dropdownsApi } from "@/lib/api/dropdowns";
 
 type ProductOption = { id: string; name: string; sku: string };
+type CustomerOption = { id: string; name: string; phone: string | null };
 
-// Reasons grouped by the movement type they belong to
 const reasonsByType: Record<string, { value: string; label: string }[]> = {
   IN: [
     { value: "PURCHASE", label: "Purchase from supplier" },
@@ -16,10 +16,10 @@ const reasonsByType: Record<string, { value: string; label: string }[]> = {
     { value: "FOUND", label: "Found in stock" },
   ],
   OUT: [
-    { value: "SALE", label: "Sale to customer" },
     { value: "DAMAGE", label: "Damaged" },
+    { value: "SALE", label: "Sale to customer" },
     { value: "LOSS", label: "Lost / missing" },
-    { value: "TRANSFER_OUT", label: "Transfer to other location" },
+    { value: "WRITE_OFF", label: "Write-off / Removed" },
   ],
   ADJUSTMENT: [
     { value: "AUDIT_CORRECTION", label: "Audit correction" },
@@ -30,15 +30,21 @@ export function RecordMovementButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState<ProductOption[]>([]);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [type, setType] = useState<"IN" | "OUT" | "ADJUSTMENT">("IN");
+  const [reason, setReason] = useState("PURCHASE");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (!open) return;
     (async () => {
-      const list = await dropdownsApi.products();
-      setProducts(list);
+      const [prodList, custList] = await Promise.all([
+        dropdownsApi.products(),
+        dropdownsApi.customers(),
+      ]);
+      setProducts(prodList);
+      setCustomers(custList);
     })();
   }, [open]);
 
@@ -46,6 +52,7 @@ export function RecordMovementButton() {
     setOpen(false);
     setError(null);
     setType("IN");
+    setReason("PURCHASE");
   }
 
   return (
@@ -115,7 +122,10 @@ export function RecordMovementButton() {
                     <button
                       key={t}
                       type="button"
-                      onClick={() => setType(t)}
+                      onClick={() => {
+                        setType(t);
+                        setReason(reasonsByType[t][0].value);
+                      }}
                       className={`rounded-xl border px-3 py-2 text-xs font-semibold transition ${
                         type === t
                           ? "border-indigo-500 bg-indigo-50 text-indigo-700"
@@ -136,6 +146,8 @@ export function RecordMovementButton() {
                 </label>
                 <select
                   name="reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
                   required
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
                 >
@@ -146,6 +158,26 @@ export function RecordMovementButton() {
                   ))}
                 </select>
               </div>
+
+              {/* Customer (Conditional) */}
+              {type === "OUT" && reason === "SALE" && (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                    Customer <span className="font-normal text-slate-400">(optional)</span>
+                  </label>
+                  <select
+                    name="customerId"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3.5 text-sm outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+                  >
+                    <option value="">Walk-in customer</option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} {c.phone ? `(${c.phone})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Quantity */}
               <div>

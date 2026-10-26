@@ -157,7 +157,7 @@ enum MovementReason {
   SALE
   DAMAGE
   LOSS
-  TRANSFER_OUT
+   WRITE_OFF  
   AUDIT_CORRECTION
 }
 

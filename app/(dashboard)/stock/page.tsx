@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowDown, ArrowUp, History, Scale } from "lucide-react";
 import { stockMovementsApi } from "@/lib/api/stock-movements";
 import { StockSearch } from "./stock-search";
@@ -93,12 +94,13 @@ export default async function StockPage({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left">
+            <table className="w-full min-w-[900px] text-left">
               <thead className="bg-slate-50/70">
                 <tr className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   <th className="px-6 py-4">Product</th>
                   <th className="px-6 py-4">Type</th>
                   <th className="px-6 py-4">Reason</th>
+                  <th className="px-6 py-4">Customer</th>
                   <th className="px-6 py-4">Quantity</th>
                   <th className="px-6 py-4">Note</th>
                   <th className="px-6 py-4">Date</th>
@@ -108,9 +110,12 @@ export default async function StockPage({
                 {movements.map((m) => (
                   <tr key={m.id} className="hover:bg-slate-50/60">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-semibold text-slate-800">
+                      <Link
+                        href={`/products/view/${m.product.id}`}
+                        className="text-sm font-semibold text-slate-800 hover:text-indigo-600"
+                      >
                         {m.product.name}
-                      </p>
+                      </Link>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {m.product.sku}
                       </p>
@@ -120,6 +125,9 @@ export default async function StockPage({
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
                       {reasonLabels[m.reason] ?? m.reason}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-500">
+                      {m.customer?.name ?? "—"}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-slate-700">
                       {m.type === "OUT" ? "-" : "+"}
