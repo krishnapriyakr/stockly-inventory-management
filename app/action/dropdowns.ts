@@ -38,3 +38,12 @@ export async function getProductOptions() {
     orderBy: { name: "asc" },
   });
 }
+
+export async function getCustomerOptions() {
+  const userId = await getUserId();
+  return db.customer.findMany({
+    where: { userId },
+    select: { id: true, name: true, phone: true },
+    orderBy: { name: "asc" },
+  });
+}

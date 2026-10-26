@@ -7,6 +7,7 @@ import {
   Package,
   Tags,
   Truck,
+  Users,
   ArrowLeftRight,
   Bell,
   BarChart3,
@@ -36,6 +37,11 @@ const menuItems = [
     label: "Suppliers",
     href: "/suppliers",
     icon: Truck,
+  },
+  {
+  label: "Customers",
+  href: "/customers",
+  icon: Users,
   },
   {
     label: "Stock Movements",
