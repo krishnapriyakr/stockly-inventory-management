@@ -15,6 +15,7 @@ import {
   LogOut,
   Boxes,
   ChevronRight,
+  Lightbulb
 } from "lucide-react";
 
 const menuItems = [
@@ -48,6 +49,11 @@ const menuItems = [
     href: "/stock",
     icon: ArrowLeftRight,
   },
+  {
+  label: "Reorder Suggestions",
+  href: "/reorder",
+  icon: Lightbulb,
+ },
   {
     label: "Alerts",
     href: "/alerts",
