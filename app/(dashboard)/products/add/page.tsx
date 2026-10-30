@@ -6,27 +6,33 @@ import Link from "next/link";
 import { ArrowLeft, Check, Info, Package } from "lucide-react";
 import { productsApi } from "@/lib/api/products";
 import { dropdownsApi } from "@/lib/api/dropdowns";
+
 export default function AddProductPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [brand, setBrand] = useState("");
   const [sellingPrice, setSellingPrice] = useState(0);
+  
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [suppliers, setSuppliers] = useState<{ id: string; name: string }[]>([]);
+  const [units, setUnits] = useState<{ value: string; label: string }[]>([]);
+  
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-  (async () => {
-    const [cats, sups] = await Promise.all([
-      dropdownsApi.categories(),
-      dropdownsApi.suppliers(),
-    ]);
-    setCategories(cats);
-    setSuppliers(sups);
-    setLoaded(true);
+    (async () => {
+      const [cats, sups, unitList] = await Promise.all([
+        dropdownsApi.categories(),
+        dropdownsApi.suppliers(),
+        productsApi.units(),
+      ]);
+      setCategories(cats);
+      setSuppliers(sups);
+      setUnits(unitList);
+      setLoaded(true);
     })();
   }, []);
 
@@ -58,7 +64,6 @@ export default function AddProductPage() {
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-5 sm:px-7">
             <h2 className="font-semibold text-slate-900">Product details</h2>
-            
           </div>
 
           <form
@@ -69,10 +74,10 @@ export default function AddProductPage() {
                 else router.push("/products");
               });
             }}
-            className="space-y-6 p-5 sm:p-7 "
+            className="space-y-6 p-5 sm:p-7"
           >
             <div className="grid grid-cols-1 gap-4 text-black sm:grid-cols-2">
-              <div >
+              <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Name <span className="ml-1 text-rose-500">*</span>
                 </label>
@@ -120,7 +125,7 @@ export default function AddProductPage() {
                 />
               </div>
 
-              <div >
+              <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Brand
                   <span className="ml-2 font-normal text-slate-400">(optional)</span>
@@ -175,14 +180,18 @@ export default function AddProductPage() {
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Unit <span className="ml-1 text-rose-500">*</span>
                 </label>
-                <input
+                <select
                   name="unit"
-                  type="text"
                   defaultValue="pcs"
-                  maxLength={20}
                   required
                   className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
+                >
+                  {units.map((u) => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

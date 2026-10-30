@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { PRODUCT_UNITS } from "@/lib/constants";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required").max(120),
@@ -13,8 +14,10 @@ const productSchema = z.object({
   description: z.string().max(500).optional().or(z.literal("")),
   categoryId: z.string().min(1, "Category is required"),
   supplierId: z.string().min(1, "Supplier is required"),
-  unit: z.string().min(1, "Unit is required").max(20),
-  costPrice: z.coerce.number().min(0, "Cost price cannot be negative"),
+  unit: z.string().refine(
+    (val) => PRODUCT_UNITS.some(u => u.value === val),
+    "Invalid unit selected"
+  ),  costPrice: z.coerce.number().min(0, "Cost price cannot be negative"),
   sellingPrice: z.coerce.number().min(0, "Selling price cannot be negative"),
   taxRate: z.coerce.number().min(0).max(100),
   // NOTE: no `stock` field here. Stock changes only through Stock Movements.
@@ -213,4 +216,8 @@ export async function deleteProduct(id: string) {
 
   revalidatePath("/products");
   return { success: true };
+}
+
+export async function getUnitOptions() {
+  return PRODUCT_UNITS;
 }

@@ -5,6 +5,7 @@ import {
   updateProduct,
   toggleProductActive,
   deleteProduct,
+  getUnitOptions,
 } from "@/app/action/products";
 
 export const productsApi = {
@@ -15,4 +16,5 @@ export const productsApi = {
   toggleActive: (id: string, isActive: boolean) =>
     toggleProductActive(id, isActive),
   remove: (id: string) => deleteProduct(id),
+  units: () => getUnitOptions(),
 };

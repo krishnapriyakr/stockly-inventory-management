@@ -9,6 +9,7 @@ import { dropdownsApi } from "@/lib/api/dropdowns";
 
 type CategoryOption = { id: string; name: string };
 type SupplierOption = { id: string; name: string };
+type UnitOption = { value: string; label: string };
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -31,16 +32,19 @@ export default function EditProductPage() {
 
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
+  const [units, setUnits] = useState<UnitOption[]>([]);
+  
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     async function load() {
-      const [product, cats, sups] = await Promise.all([
+      const [product, cats, sups, unitList] = await Promise.all([
         productsApi.getById(id),
         dropdownsApi.categories(),
         dropdownsApi.suppliers(),
+        productsApi.units(),
       ]);
 
       if (product) {
@@ -61,6 +65,7 @@ export default function EditProductPage() {
 
       setCategories(cats);
       setSuppliers(sups);
+      setUnits(unitList);
       setLoaded(true);
     }
     load();
@@ -209,13 +214,19 @@ export default function EditProductPage() {
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Unit
                 </label>
-                <input
+                <select
                   name="unit"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   required
                   className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
-                />
+                >
+                  {units.map((u) => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
