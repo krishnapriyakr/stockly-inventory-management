@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { stockMovementsApi } from "@/lib/api/stock-movements";
 import { dropdownsApi } from "@/lib/api/dropdowns";
 
-type ProductOption = { id: string; name: string; sku: string };
+type ProductOption = { id: string; name: string; sku?: string };
 type CustomerOption = { id: string; name: string; phone: string | null };
 
 const reasonsByType: Record<string, { value: string; label: string }[]> = {
@@ -106,7 +106,7 @@ export function RecordMovementButton() {
                   <option value="">Select product…</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.sku})
+                      {p.sku ? `${p.name} (${p.sku})` : p.name}
                     </option>
                   ))}
                 </select>

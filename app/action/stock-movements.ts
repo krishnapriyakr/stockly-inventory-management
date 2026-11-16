@@ -110,6 +110,9 @@ export async function getMovements(filters?: {
       product: {
         select: { id: true, name: true, sku: true, unit: true },
       },
+      customer: {                       
+      select: { id: true, name: true, phone: true },
+    },
     },
     orderBy: { createdAt: "desc" },
     take: 200,
