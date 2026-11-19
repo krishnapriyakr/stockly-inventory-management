@@ -2,7 +2,8 @@
 
 A modern inventory management system for small/medium businesses. Stockly solves stockouts and overstocking with smart reorder suggestions, real-time stock tracking, and automated alerts.
 
-**Live Demo:** [Coming soon — deploy to Vercel]
+**Live Demo:** [https://stockly-inventory-management.vercel.app](https://stockly-inventory-management.vercel.app)
+
 
 ---
 
